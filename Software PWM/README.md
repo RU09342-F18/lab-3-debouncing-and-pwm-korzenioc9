@@ -9,7 +9,8 @@ You will need to have two folders in this repository, one for each of the proces
 
 ### Hints
 You really, really, really, really need to hook up the output of your LED pin to an oscilloscope to make sure that the duty cycle is accurate. Also, since you are going to be doing a lot of initialization, it would be helpful for all persons involved if you created your main function like:
-'''c
+
+```c
 int main(void)
 {
 	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
@@ -19,7 +20,8 @@ int main(void)
 	TimerA1Setup(); // Initialize Timer1
 	__bis_SR_register(LPM0_bits + GIE);       // Enter LPM0 w/ interrupt
 }
-'''
+```
+
 This way, each of the steps in initialization can be isolated for easier understanding and debugging.
 
 
