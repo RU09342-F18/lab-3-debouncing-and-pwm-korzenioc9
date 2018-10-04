@@ -1,4 +1,13 @@
 # Software Debouncing
+Mechanical switches are not perfect. Sometimes, they "bounce" or actuate more than one time per single press. This can be remedied by "Debouncing." For the purpose of this lab, we will use software to debounce a button that changes the state of an LED on MSP430 boards. 
+
+
+
+
+
+
+
+//
 In previous labs, we talked about how objects such as switches can cause some nasty effects since they are actually a mechanical system at heart. We talked about the simple hardware method of debouncing, but due to the many different design constraints, you may not be able to add or adjust hardware. Debouncing is also only one of many applications which would require the use of built in Timers to allow for other processes to take place.
 
 ## Task
