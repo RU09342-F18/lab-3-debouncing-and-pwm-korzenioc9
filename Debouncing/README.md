@@ -1,27 +1,8 @@
 # Software Debouncing
-Mechanical switches are not perfect. Sometimes, they "bounce" or actuate more than one time per single press. This can be remedied by "Debouncing." For the purpose of this lab, we will use software to debounce a button that changes the state of an LED on MSP430 boards. 
+Mechanical switches are not perfect. Sometimes, they "bounce" or actuate more than one time per single press. This can be remedied by "Debouncing." For the purpose of this lab, we will use software to debounce a button that changes the state of an LED on an MSP430 and MSP432 board. Debouncing is accomplished by writing code that only allows the button to register one single input per press. We will use a timer to implement this on both boards.
 
+## MSP430G2553
+This code will trigger an interrupt to activate an LED on the press of a button. However, the interrupt will aso run additiona code which will disable the button's interrupt. This prevents the button from bouncing and reactuating the LED undesirably. Using an oscilloscope, we determined that button bouncing is largely over after a period of 10ms. So, our code makes the button "Wait" 10ms before it can register another input interrupt. This prevents bouncing.
 
-
-
-
-
-
-//
-In previous labs, we talked about how objects such as switches can cause some nasty effects since they are actually a mechanical system at heart. We talked about the simple hardware method of debouncing, but due to the many different design constraints, you may not be able to add or adjust hardware. Debouncing is also only one of many applications which would require the use of built in Timers to allow for other processes to take place.
-
-## Task
-You need to utilize the TIMER modules within the MSP430 processors to implement a debounced switch to control the state of an LED. You most likely will want to hook up your buttons on the development boards to an oscilloscope to see how much time it takes for the buttons to settle. The idea here is that your processor should be able to run other code, while relying on timers and interrupts to manage the debouncing in the background. *You should not be using polling techniques for this assignment.*
-
-## Deliverables
-You will need to have two folders in this repository, one for each of the processors that you used for this part of the lab. Remember to replace this README with your own.
-
-### Hints
-You need to take a look at how the P1IE and P1IES registers work and how to control them within an interrupt routine. Remember that the debouncing is not going to be the main process you are going to run by the end of the lab.
-
-## Extra Work
-### Low Power Modes
-Go into the datasheets or look online for information about the low power modes of your processors and using Energy Trace, see what the lowest power consumption you can achieve while still running your debouncing code. Take a note when your processor is not driving the LED (or unplug the header connecting the LED and check) but running the interrupt routine for your debouncing.
-
-### Double the fun
-Can you expand your code to debounce two switches? Do you have to use two Timer peripherals to do this?
+## MSP432P401R
+While this board uses some different syntax and port numbering, the implementation of debouncing is identical to that of the G2553. It is worth noting though that this board requires a different library than the 2553, <msp432.h>.
