@@ -3,7 +3,7 @@
 
 #include <msp430.h> 
 int Duty_Cycle = 500; //sets LED duty cycle to 50% to start
-int debounce_state = 0;
+int state = 0;
 void LEDSetup();
 void ButtonSetup();
 void TimerA0Setup();
@@ -32,7 +32,7 @@ int main(void)
 }
 #pragma vector = PORT1_VECTOR
 __interrupt void P1_ISR(void){
-            switch(debounce_state)
+            switch(state)
                 {
                 case 0: //OFF -> GOING ON
                     TA1CTL = TASSEL_2 + MC_1 + TACLR; // SMCLK, continuous mode, clear timer
@@ -48,7 +48,7 @@ __interrupt void P1_ISR(void){
 }
 #pragma vector=TIMER1_A0_VECTOR //timer A0 interrupt routine
 __interrupt void Timer1_ISR(void){
-    switch(debounce_state)
+    switch(state)
     {
     case 0://turning on, on
         if(Duty_Cycle < 1000) //If Duty cycle is not at 100%
@@ -62,14 +62,14 @@ __interrupt void Timer1_ISR(void){
         P1IE |= BIT3; //Enable Interrupts for P1.3
         P1IES &= ~BIT3; //low to high interrupt edge
         TA1CTL &= ~TASSEL_2 + TACLR; //Stop TimerA1, clear timer
-        debounce_state = 1;//go to port 1 state 1
+        state = 1;//go to port 1 state 1
         break;
     case 1://turning off, off
         P1IE |= BIT3; //Enable Interrupts for P1.3
         P1IFG &= ~BIT3; //Clear interrupt flag P1.3
         P1IES |= BIT3;//high to low interrupt edge
         TA1CTL &= ~TASSEL_2 + TACLR; //Stop TimerA1, clear timer
-        debounce_state = 0; //go to port 2 state 0
+        state = 0; //go to port 2 state 0
         break;
     }
 }
