@@ -6,7 +6,7 @@
 #include <msp430.h>
 
 int Duty_Cycle = 500;
-int debounce_state = 0;
+int state = 0;
 void LEDSetup();
 void ButtonSetup();
 void TimerA0Setup();
@@ -46,7 +46,7 @@ __interrupt void P2_ISR(void)
     {
     case P2IV_P2IFG1:
         {
-            switch(debounce_state)
+            switch(state)
                 {
                 case 0: //going from off to on
                     TA1CTL = TASSEL_2 + MC_1 + TACLR;;
@@ -63,7 +63,7 @@ __interrupt void P2_ISR(void)
 #pragma vector=TIMER1_A0_VECTOR
 __interrupt void Timer1_ISR(void)
 {
-    switch(debounce_state)
+    switch(state)
     {
     case 0://LED going from on to on
         if(Duty_Cycle < 1000) //PWM Incrementing conditions
@@ -77,14 +77,14 @@ __interrupt void Timer1_ISR(void)
         P2IE |= BIT1;
         P2IES &= ~BIT1;;
         TA1CTL &= ~TASSEL_2 + TACLR;
-        debounce_state = 1;
+        state = 1;
         break;
     case 1://LED going from off to off
         P2IE |= BIT1;
         P2IFG &= ~BIT1; //clear flag P1.1 button interrupt
         P2IES |= BIT1;
         TA1CTL &= ~TASSEL_2 + TACLR;
-        debounce_state = 0; //go to case 0 when button is pressed
+        state = 0; //go to case 0 when button is pressed
         break;
     }
 }
