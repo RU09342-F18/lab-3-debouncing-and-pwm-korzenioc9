@@ -1,62 +1,42 @@
-//Author: Cameron Korzeniowski
-//Date: 10/02/18
+/* Author: Cameron Korzeniowski
+ * Date: 10/02/18
+ */
 
-#include <msp430.h>
-
-int debounce_state = 0;
+#include <msp430.h> 
 
 int main(void)
 {
-    WDTCTL = WDTPW | WDTHOLD;// disable watchdog timer
-    P1DIR &= ~BIT3;         //set P1.3 to input
-    P1REN |= BIT3;          //Resistor enabled for P1.3
-    P1OUT |= BIT3;          //set resistor to pull up for P1.3
-    P1IE |= BIT3;           //Enable P1.3 Interrupt
-    P1IFG &= ~BIT3;         //Clear P1.3 Interrupt flags
-    P1IES |= BIT3;          //P1.3 Interrupt on Positive Edge
-    P1DIR |= BIT6;          //Set LED P1.6 as output
-    P1OUT &= ~BIT6;         //Set LED P1.6 to be off
-    TA0CCTL0 = CCIE;        //interrupt enable
-    TA0CCR0 = 50000;        //overflow time = 10ms
-    __enable_interrupt();
-}
-#pragma vector=PORT1_VECTOR
-__interrupt void PORT_1(void)
-{
-        switch(debounce_state)
-            {
-            case 0: //LED off, turning on
-                TA0CTL = TASSEL_2 + MC_1 + TACLR;// SMCLK in continuous mode
-                P1IE &= ~BIT3;  // disable interrupts for P1.3 button
-                P1IFG &= ~BIT3; //clear interrupt flags P1.3
-                break;
-            case 1: //LED on, turning off
-                TA0CTL = TASSEL_2 + MC_1 + TACLR;// SMCLK in continuous mode
-                P1IE &= ~BIT3;// disable interrupts for P1.3 button
-                P1IFG &= ~BIT3; //clear interrupt flags P1.3
-                break;
-            }
-}
-#pragma vector=TIMER0_A0_VECTOR
-__interrupt void Timer_A0 (void)
-{
-    switch(debounce_state)
-    {
-    case 0://Turning on, on
-        P1OUT ^= BIT6;       //Flip state of LED P1.6
-        P1IE |= BIT3;        //Enable P1.3 interrupt
-        P1IES &= ~BIT3;      //Low to high interrupt for button release
-        TA0CTL &= ~TASSEL_2; //Stop TimerA0
-        TA0CTL |= TACLR;     //Clear TimerA0 control
-        debounce_state = 1;  //go to state 1 of port 1
-        break;
-    case 1://turning off, off
-        P1IE |= BIT3;        //P1.3 interrupt enabled
-        P1IFG &= ~BIT3;      //clear interrupt flags on P1.3
-        P1IES |= BIT3;       //P1.3 interrupt high to low
-        TA0CTL &= ~TASSEL_2; //Stop TimerA0
-        TA0CTL |= TACLR;     //Clear TimerA0
-        debounce_state = 0;  //go to state 0 of port 1
-        break;
+    WDTCTL = WDTPW | WDTHOLD;    // stop watchdog timer
+    P1DIR  |= BIT0;           // set P1.0 to output direction
+    P1REN  |= BIT3;         // Enables P1.3 resistor
+    P1OUT  = BIT3;          // P1.3 pull up resistor
+    P1IE |= BIT3;
+    P1IES = 0;        // Interrupts on button press - Low to high
+    P1IFG &= ~BIT3;           // Clear P1.3 interrupt flag
+    TA0CCTL0 = 0x0010;      // Enables Capture/compare register for timer A0 interrupt
+    TA0CCR0 = 60000;        // value for Timer A0 to count to
+    TA0CTL = TASSEL_2 + MC_0;   // Timer_A SMCLK clock, timer off
+
+        __enable_interrupt();       //enables interrupts
+
+        __bis_SR_register(LPM0 + GIE); // Low Power Mode w/ interrupts enabled
+
     }
-}
+
+    // Interrupt Service Routine 1
+    #pragma vector = PORT1_VECTOR           //interrupt toggles the LED on release of button
+    __interrupt void Interrupt_1(void)      //starts timer A0 acting as delay
+    {
+        P1OUT ^= BIT0;                 // Toggles LED
+        P1IE &= ~BIT3;                 // clear interrupt
+        TA0CTL = TASSEL_2 + MC_1;      // Timer_A SMCLK clock, Up mode
+    }
+
+    // Interrupt Service Routine 2: stops Timer A0, resets interrupt
+    #pragma vector=TIMER0_A0_VECTOR
+    __interrupt void Interrupt_2(void)
+    {
+        TA0CTL = MC_0;       // Stop timer
+        P1IE |= BIT3;      // Interrupt enable for P1.3
+        P1IFG &= ~BIT3;      // Clear interrupt flag
+    }
