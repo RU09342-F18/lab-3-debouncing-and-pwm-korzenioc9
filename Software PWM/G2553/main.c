@@ -11,7 +11,7 @@ void TimerA1Setup();
 
 int main(void)
 {
-    WDTCTL = WDTPW | WDTHOLD;   // stop Watchdog timer
+    WDTCTL = WDTPW | WDTHOLD;// stop Watchdog timer
     LEDSetup();
     ButtonSetup();
     TimerA0Setup();
@@ -42,7 +42,7 @@ __interrupt void P1_ISR(void){
                 case 1: //ON -> GOING OFF
                     TA1CTL = TASSEL_2 + MC_1 + TACLR; // SMCLK, continuous mode, clear timer
                     P1IE &= ~BIT3; //disable interrupts for P1.3
-                    P1IFG &= ~BIT3;  //Clear flag p1.3
+                    P1IFG &= ~BIT3;//Clear flag p1.3
                     break;
                 }
 }
@@ -88,8 +88,8 @@ void ButtonSetup(){
     P1IFG &= ~BIT3; //Clear P1.3 Interrupt Flag
 }
 void TimerA0Setup(){
-    TA0CCR0 = 1000;//Set period for Up mode - for PWM (1000 = 100%)
-    TA0CTL |= TASSEL_2 + MC_1 + TACLR; //Use SMCLK, Up Mode, Clear Timer Registers - for PWM
+    TA0CCR0 = 1000;//Set period for Up mode - PWM (1000 = 100%)
+    TA0CTL |= TASSEL_2 + MC_1 + TACLR; //SMCLK, Up Mode, Clear Timer
 }
 void TimerA1Setup(){
     TA1CCTL0 = CCIE; //interrupt enabled for debouncing
