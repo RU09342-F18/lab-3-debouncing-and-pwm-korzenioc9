@@ -12,8 +12,8 @@ int main(void)
     P2DIR |= BIT0;           // set P2.0 to output
     P2SEL0 |= (BIT0);      //set P2.0 as output
     P2SEL1 &= ~BIT0;
-    P1DIR &= ~BIT1;      //set pin 1.3 direction to input
-    P1REN |= BIT1;       //enable resistor on pin 1.3
+    P1DIR &= ~BIT1;      //set pin 1.1 direction to input
+    P1REN |= BIT1;       //enable resistor on pin 1.1
     P1OUT |= BIT1;           //set resistor to pull up
     P1IE |= BIT1;          //enable P1.1 interrupt 
     P1IES |= BIT1;         //set interrupt edge to low
@@ -42,7 +42,7 @@ __interrupt void Port_1(void)
     }
            P1IES ^= BIT1;    //toggle edge
            P1OUT ^= BIT0;    //toggle LED
-           P1IFG &= ~BIT1;    //clear flags
+           P1IFG &= ~BIT1;    //clear P1.1 flags
            TB0CTL = TBSSEL_2 + MC_1;   // connect timer b0 to SMCLK in up mode
 }
 
